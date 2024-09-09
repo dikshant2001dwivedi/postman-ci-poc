@@ -25,6 +25,9 @@ jobs:
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
+      - name: Create Postman directory
+        run: mkdir -p ./postman
+
       - name: Download Postman Collection from Postman
         run: |
           curl -X GET "https://api.getpostman.com/collections/${{ vars.POSTMAN_COLLECTION_UID }}" \
