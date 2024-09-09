@@ -34,20 +34,24 @@ jobs:
           -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
           -o ./postman/public-api-testing.json
 
-      - name: Download Postman Environment from Postman (Develop)
-        if: github.ref == 'refs/heads/develop'
+      # Download environment based on GITHUB_BASE_REF
+      - name: Download Postman Environment from Postman (based on GITHUB_BASE_REF)
         run: |
-          curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_DEVELOP_ENV_UID }}" \
-          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-          -o ./postman/environment-develop.json
+          if [ "$GITHUB_BASE_REF" = "develop" ]; then
+            echo "Downloading environment for develop..."
+            curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_DEVELOP_ENV_UID }}" \
+            -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+            -o ./postman/environment-develop.json
+          elif [ "$GITHUB_BASE_REF" = "main" ]; then
+            echo "Downloading environment for main..."
+            curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_PROD_ENV_UID }}" \
+            -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+            -o ./postman/environment-prod.json
+          else
+            echo "No matching base branch for environment download"
+          fi
 
-      - name: Download Postman Environment from Postman (Main)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_PROD_ENV_UID }}" \
-          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-          -o ./postman/environment-prod.json
-
+      # Run Newman with the correct environment
       - name: Run Postman Collection with Environment
         run: |
           set -x
