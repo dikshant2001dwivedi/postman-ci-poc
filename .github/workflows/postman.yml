@@ -34,7 +34,6 @@ jobs:
           -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
           -o ./postman/public-api-testing.json
 
-      # Download environment based on GITHUB_BASE_REF
       - name: Download Postman Environment from Postman (based on GITHUB_BASE_REF)
         run: |
           if [ "$GITHUB_BASE_REF" = "develop" ]; then
@@ -51,10 +50,8 @@ jobs:
             echo "No matching base branch for environment download"
           fi
 
-      # Run Newman with the correct environment
       - name: Run Postman Collection with Environment
         run: |
-          set -x
           if [ "$GITHUB_BASE_REF" = "develop" ]; then
             echo "Running Newman with the develop environment..."
             newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json || echo "Newman run failed with develop environment"
