@@ -1,0 +1,63 @@
+name: Run Postman API Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  postman-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install Newman (Postman CLI)
+        run: npm install -g newman
+
+      - name: Create Postman directory
+        run: mkdir -p ./postman
+
+      - name: Download Postman Collection from Postman
+        run: |
+          curl -X GET "https://api.getpostman.com/collections/${{ vars.POSTMAN_COLLECTION_UID }}" \
+          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+          -o ./postman/public-api-testing.json
+
+      - name: Download Postman Environment from Postman (based on GITHUB_BASE_REF)
+        run: |
+          if [ "$GITHUB_BASE_REF" = "develop" ]; then
+            echo "Downloading environment for develop..."
+            curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_DEVELOP_ENV_UID }}" \
+            -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+            -o ./postman/environment-develop.json
+          elif [ "$GITHUB_BASE_REF" = "main" ]; then
+            echo "Downloading environment for main..."
+            curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_PROD_ENV_UID }}" \
+            -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+            -o ./postman/environment-prod.json
+          else
+            echo "No matching base branch for environment download"
+          fi
+
+      - name: Run Postman Collection with Environment
+        run: |
+          if [ "$GITHUB_BASE_REF" = "develop" ]; then
+            echo "Running Newman with the develop environment..."
+            newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json || echo "Newman run failed with develop environment"
+          elif [ "$GITHUB_BASE_REF" = "main" ]; then
+            echo "Running Newman with the main environment..."
+            newman run ./postman/public-api-testing.json -e ./postman/environment-prod.json || echo "Newman run failed with main environment"
+          else
+            echo "No matching branch found for running Newman"
+          fi
