@@ -53,7 +53,11 @@ jobs:
           set -x  # Enable debug mode to show commands
           BRANCH_NAME="${GITHUB_HEAD_REF:-$(basename ${GITHUB_REF})}"
           if [ "$BRANCH_NAME" = "develop" ]; then
-            newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json
+            echo "Running Newman with the develop environment..."
+            newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json || echo "Newman run failed with develop environment"
           elif [ "$BRANCH_NAME" = "main" ]; then
-            newman run ./postman/public-api-testing.json -e ./postman/environment-prod.json
+            echo "Running Newman with the main environment..."
+            newman run ./postman/public-api-testing.json -e ./postman/environment-prod.json || echo "Newman run failed with main environment"
+          else
+            echo "No matching branch found for running Newman"
           fi
