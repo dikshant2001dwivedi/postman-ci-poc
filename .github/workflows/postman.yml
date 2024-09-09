@@ -27,23 +27,23 @@ jobs:
 
       - name: Download Postman Collection from Postman
         run: |
-          curl --location --header "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-          "https://api.getpostman.com/collections/${{ vars.POSTMAN_COLLECTION_UID }}" \
-          --output ./postman/public-api-testing.json
+          curl -X GET "https://api.getpostman.com/collections/${{ vars.POSTMAN_COLLECTION_UID }}" \
+          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+          -o ./postman/public-api-testing.json
 
       - name: Download Postman Environment from Postman (Develop)
         if: github.ref == 'refs/heads/develop'
         run: |
-          curl --location --header "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-          "https://api.getpostman.com/environments/${{ vars.POSTMAN_DEVELOP_ENV_UID }}" \
-          --output ./postman/environment-develop.json
+          curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_DEVELOP_ENV_UID }}" \
+          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+          -o ./postman/environment-develop.json
 
       - name: Download Postman Environment from Postman (Main)
         if: github.ref == 'refs/heads/main'
         run: |
-          curl --location --header "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
-          "https://api.getpostman.com/environments/${{ vars.POSTMAN_PROD_ENV_UID }}" \
-          --output ./postman/environment-prod.json
+          curl -X GET "https://api.getpostman.com/environments/${{ vars.POSTMAN_PROD_ENV_UID }}" \
+          -H "X-Api-Key: ${{ secrets.POSTMAN_API_KEY }}" \
+          -o ./postman/environment-prod.json
 
       - name: Run Postman Collection with Environment
         run: |
