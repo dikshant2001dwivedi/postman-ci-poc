@@ -23,6 +23,17 @@ jobs:
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1" # e.g., 'us-west-2'
+
+      - name: Download Postman Collection from S3
+        run: |
+          aws s3 cp https://postman-bucket-ci.s3.amazonaws.com/public-api-testing.json ./postman/public-api-testing.json
+
       - name: Run Postman Collection
         env:
           BASE_URL: ${{ secrets.POSTMAN_BASE_URL }}
