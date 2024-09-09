@@ -51,7 +51,7 @@ jobs:
       - name: Run Postman Collection with Environment
         run: |
           set -x  # Enable debug mode to show commands
-          BRANCH_NAME=$(basename ${GITHUB_REF})
+          BRANCH_NAME="${GITHUB_HEAD_REF:-$(basename ${GITHUB_REF})}"
           if [ "$BRANCH_NAME" = "develop" ]; then
             newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json
           elif [ "$BRANCH_NAME" = "main" ]; then
