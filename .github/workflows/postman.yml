@@ -50,8 +50,10 @@ jobs:
 
       - name: Run Postman Collection with Environment
         run: |
-          if [ "${GITHUB_REF}" = "refs/heads/develop" ]; then
+          set -x  # Enable debug mode to show commands
+          BRANCH_NAME=$(basename ${GITHUB_REF})
+          if [ "$BRANCH_NAME" = "develop" ]; then
             newman run ./postman/public-api-testing.json -e ./postman/environment-develop.json
-          elif [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+          elif [ "$BRANCH_NAME" = "main" ]; then
             newman run ./postman/public-api-testing.json -e ./postman/environment-prod.json
           fi
